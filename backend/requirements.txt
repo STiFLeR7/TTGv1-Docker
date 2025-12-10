@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+celery
+redis
+ortools
+pydantic
+python-dotenv
+psycopg2-binary
+pytest
+httpx

@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # -------------------------
+  # Frontend
+  # -------------------------
+  frontend:
+    image: stifler7/ttg-frontend:latest
+    pull_policy: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ttg_net
+
+  # -------------------------
+  # Backend
+  # -------------------------
+  backend:
+    image: stifler7/ttg-backend:latest
+    pull_policy: always
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db/ttg_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ttg_net
+
+  # -------------------------
+  # Worker
+  # -------------------------
+  worker:
+    image: stifler7/ttg-backend:latest
+    pull_policy: always
+    command: celery -A workers.celery_app.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db/ttg_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - ttg_net
+
+  # -------------------------
+  # Database
+  # -------------------------
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ttg_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ttg_net
+
+  # -------------------------
+  # Redis
+  # -------------------------
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - ttg_net
+
+networks:
+  ttg_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
