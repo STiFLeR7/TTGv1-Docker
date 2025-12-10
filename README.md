@@ -4,6 +4,8 @@
 
 **A next-generation automated scheduling platform designed for complex academic and organizational environments.**
 
+“Originally built for a university environment handling TPP and Non-TPP tracks with >70 constraints, now adaptable to coaching centers and training institutes.”
+
 This solution leverages advanced constraint programming and a modern, reactive interface to solve the classic "Timetabling Problem." It moves beyond simple spreadsheets to offer dynamic conflict detection, resource management, and automated generation.
 
 ![Scheduler Interface](assets/scheduler.png)
